@@ -1,57 +1,92 @@
+# =====================================
+# 1. DEPLOYMENT : gérer le Pod Backend
+# =====================================
+
 apiVersion: apps/v1
 kind: Deployment
+
 metadata:
-  name: backend-deployment
+  name: backend-deployment  # Nom du Deployment
+
 spec:
-  replicas: 1
+  replicas: 1  # Créer 1 seul Pod
+
   selector:
     matchLabels:
-      app: backend
+      app: backend  # Identifier le Pod avec ce label
+
   template:
     metadata:
       labels:
-        app: backend
+        app: backend  # Donner le label au Pod
+
     spec:
       containers:
-      - name: backend
-        image: safagr/backend:1.0
+      - name: backend  # Nom du conteneur
+
+        image: safagr/backend:1.0  # Image Docker du Backend
+
         ports:
-        - containerPort: 7071
+        - containerPort: 7071  # Port utilisé par Spring Boot
+
+        # Configuration de la connexion PostgreSQL
         env:
         - name: SPRING_DATASOURCE_URL
           value: "jdbc:postgresql://postgres-service:5432/sofrecom_db"
+
         - name: SPRING_DATASOURCE_USERNAME
-          value: "postgres"
+          value: "postgres"  # Nom d'utilisateur
+
         - name: SPRING_DATASOURCE_PASSWORD
-          value: "root123"
+          value: "root123"  # Mot de passe
+
+        # Gestion des ressources du conteneur
         resources:
-          requests:
+          requests:  # Ressources minimales demandées
             memory: "512Mi"
             cpu: "250m"
-          limits:
+
+          limits:  # Ressources maximales autorisées
             memory: "1500Mi"
             cpu: "1000m"
+
+        # Vérifier si le Backend fonctionne
         livenessProbe:
           tcpSocket:
             port: 7071
-          initialDelaySeconds: 240
-          periodSeconds: 15
+          initialDelaySeconds: 240  # Attendre 240 secondes
+          periodSeconds: 15  # Vérifier toutes les 15 secondes
+
+        # Vérifier si le Backend est prêt
         readinessProbe:
           tcpSocket:
             port: 7071
-          initialDelaySeconds: 60
-          periodSeconds: 10
+          initialDelaySeconds: 60  # Attendre 60 secondes
+          periodSeconds: 10  # Vérifier toutes les 10 secondes
+
+
 ---
+# =====================================
+# 2. SERVICE : exposer le Backend
+# =====================================
+
 apiVersion: v1
 kind: Service
+
 metadata:
-  name: backend-service
+  name: backend-service  # Nom du Service
+
 spec:
-  type: NodePort
+  type: NodePort  # Autoriser l'accès depuis l'extérieur
+
   selector:
-    app: backend
+    app: backend  # Trouver le Pod Backend
+
   ports:
-    - protocol: TCP
-      port: 7071
-      targetPort: 7071
-      nodePort: 30071
+  - protocol: TCP
+
+    port: 7071  # Port du Service
+
+    targetPort: 7071  # Port du conteneur
+
+    nodePort: 30071  # Port d'accès depuis l'extérieur

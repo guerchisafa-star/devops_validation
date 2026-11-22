@@ -15,5 +15,5 @@ USER appuser
 
 # Port par défaut de Spring Boot
 EXPOSE 7071
-
+# 8. Démarrer l'application Spring Boot
 ENTRYPOINT ["java", "-jar", "app.jar"]
