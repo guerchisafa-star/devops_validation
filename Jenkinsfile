@@ -32,7 +32,7 @@ pipeline {
             steps {
                 withCredentials([string(credentialsId: 'sonar-token', variable: 'SONAR_TOKEN')]) {
                     sh '''
-                        mvn sonar:sonar \
+                        mvn org.sonarsource.scanner.maven:sonar-maven-plugin:sonar \
                           -Dsonar.projectKey=devops-backend \
                           -Dsonar.projectName=devops-backend \
                           -Dsonar.host.url=http://localhost:9000 \
