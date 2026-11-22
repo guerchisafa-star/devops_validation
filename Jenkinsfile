@@ -28,13 +28,27 @@ pipeline {
             }
         }
 
-        stage('3. Build Docker Image') {
+        stage('3. SonarQube Analysis') {
+            steps {
+                withCredentials([string(credentialsId: 'sonar-token', variable: 'SONAR_TOKEN')]) {
+                    sh '''
+                        mvn sonar:sonar \
+                          -Dsonar.projectKey=devops-backend \
+                          -Dsonar.projectName=devops-backend \
+                          -Dsonar.host.url=http://localhost:9000 \
+                          -Dsonar.token=$SONAR_TOKEN
+                    '''
+                }
+            }
+        }
+
+        stage('4. Build Docker Image') {
             steps {
                 sh 'docker build -t ${DOCKER_IMAGE}:${IMAGE_TAG} -t ${DOCKER_IMAGE}:latest .'
             }
         }
 
-        stage('4. Push Docker Hub') {
+        stage('5. Push Docker Hub') {
             steps {
                 withCredentials([usernamePassword(credentialsId: 'dockerhub-creds', usernameVariable: 'DOCKER_USER', passwordVariable: 'DOCKER_PASS')]) {
                     sh 'echo $DOCKER_PASS | docker login -u $DOCKER_USER --password-stdin'
@@ -44,7 +58,7 @@ pipeline {
             }
         }
 
-        stage('5. Deploy to Kubernetes') {
+        stage('6. Deploy to Kubernetes') {
             steps {
                 sh 'kubectl apply -f k8s/postgres.yaml'
                 sh 'kubectl apply -f k8s/deployment.yaml'
