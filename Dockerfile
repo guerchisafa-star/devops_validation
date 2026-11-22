@@ -9,6 +9,7 @@ WORKDIR /app
 # Copier le .jar généré par Maven
 COPY target/*.jar app.jar
 
+
 # Appliquer les permissions à l'utilisateur non-root
 RUN chown -R appuser:appgroup /app
 USER appuser
