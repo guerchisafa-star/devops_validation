@@ -11,17 +11,6 @@ import java.util.Arrays;
 import java.util.List;
 
 
-
-
-
-
-
-
-
-
-
-
-
 //hellooooo
 //cette classe sert a configuerer le CORS
 //autorise ton frontend (Angular) à communiquer avec ton backend.

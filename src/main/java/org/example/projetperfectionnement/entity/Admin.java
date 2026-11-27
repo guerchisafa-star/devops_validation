@@ -36,7 +36,7 @@ public class Admin {
     //@size taille minimale (valider les données)
     @Size(min = 2, message = "Le prénom doit contenir au moins 2 caractères")
     private String firstName;
-
+// notblkank jjkshxuisjixjsok
     @NotBlank(message = "Le nom est obligatoire")
     @Size(min = 2, message = "Le nom doit contenir au moins 2 caractères")
     private String lastName;
