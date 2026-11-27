@@ -1,38 +1,94 @@
+
+# ============================================================
+# 1. DEPLOYMENT : créer et gérer le Pod PostgreSQL
+# ============================================================
+
 apiVersion: apps/v1
+# Version de l'API Kubernetes utilisée pour Deployment.
+
 kind: Deployment
+# Type de ressource : Deployment.
+# Ykhalina ncréyiw w n'gériw le Pod PostgreSQL.
+
 metadata:
   name: postgres-deployment
+  # Nom du Deployment.
+
 spec:
   replicas: 1
+  # Nombre de Pods souhaités : un seul Pod PostgreSQL.
+
   selector:
     matchLabels:
       app: postgres
+      # Le Deployment cherche les Pods portant le label app=postgres.
+
   template:
+    # Modèle utilisé pour créer le Pod.
+
     metadata:
       labels:
         app: postgres
+        # N3tiw lel Pod label app=postgres.
+        # Lazem ykoun kif kif m3a selector.matchLabels.
+
     spec:
       containers:
       - name: postgres
+        # Nom du conteneur PostgreSQL.
+
         image: postgres:15-alpine
+        # Image Docker officielle PostgreSQL version 15.
+        # Alpine : version légère pour réduire la taille de l'image.
+
         ports:
         - containerPort: 5432
+          # Port utilisé par PostgreSQL à l'intérieur du conteneur.
+
         env:
+        # Variables d'environnement pour configurer PostgreSQL.
+
         - name: POSTGRES_DB
           value: "sofrecom_db"
+          # Nom de la base de données à créer.
+
         - name: POSTGRES_USER
           value: "postgres"
+          # Nom de l'utilisateur PostgreSQL.
+
         - name: POSTGRES_PASSWORD
           value: "root123"
+          # Mot de passe de l'utilisateur PostgreSQL.
+
+
 ---
+# ============================================================
+# 2. SERVICE : permettre la communication avec PostgreSQL
+# ============================================================
+
 apiVersion: v1
+# Version de l'API Kubernetes utilisée pour Service.
+
 kind: Service
+# Type de ressource : Service.
+# Ysamah lel Backend yconnecti b PostgreSQL.
+
 metadata:
   name: postgres-service
+  # Nom du Service PostgreSQL.
+  # Le Backend utilise ce nom pour trouver la base de données.
+
 spec:
   selector:
     app: postgres
+    # Le Service cherche le Pod portant le label app=postgres.
+
   ports:
-    - protocol: TCP
-      port: 5432
-      targetPort: 5432
+  - protocol: TCP
+    # Protocole utilisé pour la communication.
+
+    port: 5432
+    # Port du Service Kubernetes.
+
+    targetPort: 5432
+    # Port du conteneur PostgreSQL.

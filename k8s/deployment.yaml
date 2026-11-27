@@ -1,92 +1,154 @@
-# =====================================
-# 1. DEPLOYMENT : gérer le Pod Backend
-# =====================================
+
+# ============================================================
+# 1. DEPLOYMENT : créer et gérer le Pod Backend
+# ============================================================
 
 apiVersion: apps/v1
+# Version de l'API Kubernetes utilisée pour Deployment.
+
 kind: Deployment
+# Type de ressource : Deployment.
+# Ykhalina ncréyiw w n'gériw les Pods automatiquement.
 
 metadata:
-  name: backend-deployment  # Nom du Deployment
+  name: backend-deployment
+  # Nom du Deployment.
 
 spec:
-  replicas: 1  # Créer 1 seul Pod
+  replicas: 1
+  # Nombre de Pods souhaités : 1 seul Pod Backend.
 
   selector:
     matchLabels:
-      app: backend  # Identifier le Pod avec ce label
+      app: backend
+      # Le Deployment cherche les Pods portant le label app=backend.
 
   template:
+    # Modèle utilisé pour créer les Pods.
+
     metadata:
       labels:
-        app: backend  # Donner le label au Pod
+        app: backend
+        # N3tiw lel Pod label app=backend.
+        # Lazem ykoun kif kif m3a selector.matchLabels.
 
     spec:
       containers:
-      - name: backend  # Nom du conteneur
+      - name: backend
+        # Nom du conteneur à l'intérieur du Pod.
 
-        image: safagr/backend:1.0  # Image Docker du Backend
+        image: safagr/backend:1.0
+        # Image Docker du Backend Spring Boot.
+        # Kubernetes utilise cette image pour créer le conteneur.
 
         ports:
-        - containerPort: 7071  # Port utilisé par Spring Boot
+        - containerPort: 7071
+          # Port sur lequel Spring Boot écoute à l'intérieur du conteneur.
 
-        # Configuration de la connexion PostgreSQL
         env:
+        # Variables d'environnement pour configurer PostgreSQL.
+
         - name: SPRING_DATASOURCE_URL
           value: "jdbc:postgresql://postgres-service:5432/sofrecom_db"
+          # URL de connexion à la base PostgreSQL.
+          # postgres-service : nom du Service PostgreSQL.
+          # 5432 : port PostgreSQL.
+          # sofrecom_db : nom de la base de données.
 
         - name: SPRING_DATASOURCE_USERNAME
-          value: "postgres"  # Nom d'utilisateur
+          value: "postgres"
+          # Nom d'utilisateur PostgreSQL.
 
         - name: SPRING_DATASOURCE_PASSWORD
-          value: "root123"  # Mot de passe
+          value: "root123"
+          # Mot de passe PostgreSQL.
 
-        # Gestion des ressources du conteneur
         resources:
-          requests:  # Ressources minimales demandées
+          # Définir les ressources CPU et RAM du conteneur.
+
+          requests:
+            # Ressources minimales demandées au démarrage.
+
             memory: "512Mi"
+            # Demande minimale de 512 Mio de RAM.
+
             cpu: "250m"
+            # Demande minimale de 0.25 CPU.
 
-          limits:  # Ressources maximales autorisées
+          limits:
+            # Ressources maximales autorisées.
+
             memory: "1500Mi"
+            # Le conteneur ne peut pas dépasser 1500 Mio de RAM.
+
             cpu: "1000m"
+            # Le conteneur ne peut pas dépasser 1 CPU.
 
-        # Vérifier si le Backend fonctionne
         livenessProbe:
-          tcpSocket:
-            port: 7071
-          initialDelaySeconds: 240  # Attendre 240 secondes
-          periodSeconds: 15  # Vérifier toutes les 15 secondes
+          # Vérifier si le Backend fonctionne toujours.
+          # Ken ma3adech yesta3mel, Kubernetes peut redémarrer le conteneur.
 
-        # Vérifier si le Backend est prêt
-        readinessProbe:
           tcpSocket:
             port: 7071
-          initialDelaySeconds: 60  # Attendre 60 secondes
-          periodSeconds: 10  # Vérifier toutes les 10 secondes
+            # Tester si le port 7071 accepte les connexions TCP.
+
+          initialDelaySeconds: 240
+          # Attendre 240 secondes après le démarrage avant le premier test.
+
+          periodSeconds: 15
+          # Répéter le test toutes les 15 secondes.
+
+        readinessProbe:
+          # Vérifier si le Backend est prêt à recevoir des requêtes.
+          # Ken mazal mahouche prêt, Service ma yab3athlouch trafic.
+
+          tcpSocket:
+            port: 7071
+            # Vérifier si le port 7071 est accessible.
+
+          initialDelaySeconds: 60
+          # Attendre 60 secondes avant le premier test.
+
+          periodSeconds: 10
+          # Répéter le test toutes les 10 secondes.
 
 
 ---
-# =====================================
-# 2. SERVICE : exposer le Backend
-# =====================================
+# ============================================================
+# 2. SERVICE : permettre l'accès au Backend
+# ============================================================
 
 apiVersion: v1
+# Version de l'API Kubernetes utilisée pour Service.
+
 kind: Service
+# Type de ressource : Service.
+# Yربط les requêtes avec les Pods Backend.
 
 metadata:
-  name: backend-service  # Nom du Service
+  name: backend-service
+  # Nom du Service Backend.
 
 spec:
-  type: NodePort  # Autoriser l'accès depuis l'extérieur
+  type: NodePort
+  # Exposer le Service sur un port du Node.
+  # Ywalli najmou nouslou lel Backend men barra el cluster.
 
   selector:
-    app: backend  # Trouver le Pod Backend
+    app: backend
+    # Le Service cherche les Pods qui portent le label app=backend.
+    # Donc il trouve le Pod créé par le Deployment.
 
   ports:
   - protocol: TCP
+    # Protocole utilisé pour la communication.
 
-    port: 7071  # Port du Service
+    port: 7071
+    # Port du Service Kubernetes.
 
-    targetPort: 7071  # Port du conteneur
+    targetPort: 7071
+    # Port du conteneur Backend.
 
-    nodePort: 30071  # Port d'accès depuis l'extérieur
+    nodePort: 30071
+    # Port externe du Node pour accéder au Backend.
+    # Exemple : http://IP_DU_NODE:30071
