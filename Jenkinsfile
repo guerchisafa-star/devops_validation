@@ -64,7 +64,7 @@ pipeline {
             }
         }
 
-        // 4. Construire l'image Docker
+        // 4. Construire l'image Docker .
         stage('4. Build Docker Image') {
             steps {
                 // Creer l'image avec deux tags : numero du build et latest
