@@ -15,7 +15,7 @@ metadata:
   # Nom du Deployment.
 
 spec:
-  replicas: 1
+  replicas: 2
   # Nombre de Pods souhaités : 1 seul Pod Backend.
 
   selector:
